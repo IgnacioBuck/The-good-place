@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Reproductor Películas</title>
+  <link rel="stylesheet" href="../css/reproductor.css">
+</head>
+<body>
+
+    <h1><a href="./menu.html">The good place</a></h1>
+
+  <iframe 
+    id="visor" 
+    width="800" 
+    height="450" 
+    src="" 
+    frameborder="0" 
+    allow="autoplay; encrypted-media" 
+    allowfullscreen>
+  </iframe>
+
+  <script>
+    const VIEW_KEY = "nnFJ2dTIgKadm_U15hWEPBnovP91r9win5lt1TQrB4Q";
+    
+    
+    const peliculasConfig = {
+      "tomyjerrycascanueces": { tmdb: "24696", viewKey: VIEW_KEY },
+      "losvengadores": { tmdb: "24428", viewKey: VIEW_KEY },
+      "eradeultron": { tmdb: "99861", viewKey: VIEW_KEY },
+      "infinitywar": { tmdb: "299536", viewKey: VIEW_KEY },
+      "endgame": { tmdb: "299534", viewKey: VIEW_KEY },
+      "interestelar": { tmdb: "157336", viewKey: VIEW_KEY },
+      "zootopia2": { tmdb: "1084242", viewKey: VIEW_KEY },
+      "klaus": { tmdb: "508965", viewKey: VIEW_KEY },
+      "tronares": { tmdb: "533533", viewKey: VIEW_KEY },
+      
+
+    };
+
+    
+    const params = new URLSearchParams(window.location.search);
+    const tmdbId = params.get("id");
+    const visor = document.getElementById("visor");
+
+    
+    const opciones = Object.values(peliculasConfig).find(m => m.tmdb === tmdbId);
+
+    if (opciones) {
+      const url = `https://vimeus.com/e/movie?tmdb=${opciones.tmdb}&view_key=${opciones.viewKey}`;
+      console.log("Cargando:", url); // debug
+      visor.src = url;
+    } else {
+      document.body.innerHTML = "<h2>Error: Película no encontrada en peliculasConfig</h2>";
+      console.error("Película no encontrada en peliculasConfig");
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Reproductor Series</title>
+  <link rel="stylesheet" href="../css/reproductor.css">
+</head>
+<body>
+
+  <h1><a href="./menu.html">The good place</a></h1>
+
+  <iframe id="visor" width="640" height="360" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
+  <div id="selectorTemporada"></div>
+  <div id="botonesCapitulos"></div>
+  
+  <script>
+    const seriesConfig = {
+      "got": { imdb: "tt0944947", viewKey: "8Myg_CbKpM2XN72ibzAdILkfQfTIouApg_LC67XAV8Y", maxCapitulos: 10, maxTemporadas: 8 },
+      "severance": { imdb: "tt11280740", viewKey: "8Myg_CbKpM2XN72ibzAdILkfQfTIouApg_LC67XAV8Y", maxCapitulos: 9, maxTemporadas: 2 },
+      "miniSerie": { imdb: "tt7654321", viewKey: "ABC987", maxCapitulos: 5, maxTemporadas: 8 },
+      "masAllaDelJardin": { 
+        episodios: [
+          //Enlaces sacados de repelishd
+          "https://supervideo.cc/e/lqmwvhd9h3vj",
+          "https://supervideo.cc/e/mhacbemiikb8",
+          "https://supervideo.cc/e/xd585hq93d19.html",
+          "https://supervideo.cc/e/s3yyy2n6tn3s.html",
+          "https://supervideo.cc/e/lzjchawiipw8.html",
+          "https://supervideo.cc/e/hfsfbpitgfu2.html",
+          "https://supervideo.cc/e/1lqjpqo83hgh.html",
+          "https://supervideo.cc/e/acxsath6k3r9.html",
+          "https://supervideo.cc/e/s43ke599qa4t.html",
+          "https://supervideo.cc/e/akcwyaa11hyk.html"
+        ], maxTemporadas: 1
+      },
+      "elMinisterioDelTiempo": {
+        episodios: [
+          "https://supervideo.cc/e/7l4zmcezaggt.html",
+          "https://supervideo.cc/e/eyh7r2ez091d.html",
+          "https://supervideo.cc/e/90srclgxzzb5.html",
+          "https://supervideo.cc/e/rcnrpf2buthe.html",
+          "https://supervideo.cc/e/2v2zucpszg2r.html",
+          "https://supervideo.cc/e/w8o5bartet49.html",
+          "https://supervideo.cc/e/uzg08muvpigx.html",
+          "https://supervideo.cc/e/pn7erfd9lg01.html",
+          "https://supervideo.cc/e/aw0k1zvn8a6e.html",
+          "https://supervideo.cc/e/epdyti3ng7vt.html",
+          "https://supervideo.cc/e/1vb1rgjkkpb4.html",
+          "https://supervideo.cc/e/te6q2rj65km6.html",
+          "https://supervideo.cc/e/fhvyev73rn9s.html",
+          "https://supervideo.cc/e/yyhnoh7bxpsz.html",
+          "https://supervideo.cc/e/6sctgzzmtwvl.html",
+          "https://supervideo.cc/e/xirmfein03j8.html",
+          "https://supervideo.cc/e/eck2hm2yi8eq.html",
+          "https://supervideo.cc/e/5wy02wcldu0y.html",
+          "https://supervideo.cc/e/rwqkhf7c94kw.html",
+          "https://supervideo.cc/e/bph0jojls9nx.html",
+          "https://supervideo.cc/e/teiddl9p0hnu.html",
+          "https://supervideo.cc/e/b4vu8wqqaajy.html",
+          "https://supervideo.cc/e/wuyugmfzqzei.html",
+          "https://supervideo.cc/e/r2sqmulcwf2u.html",
+          "https://supervideo.cc/e/6e96tqts4dxt.html",
+          "https://supervideo.cc/e/693rpg9n3x9d.html",
+          "https://supervideo.cc/e/7h05l3qfhzkd.html",
+          "https://supervideo.cc/e/n9iw8aofqjhj.html"
+        ], maxTemporadas: 1
+      }
+    };
+
+    let temporada = 1;
+    let episodio = 1;
+
+    const params = new URLSearchParams(window.location.search);
+    const imdbId = params.get("id");       
+    const serieId = params.get("serie");   
+
+    let opciones = null;
+
+    if (imdbId) {
+      opciones = Object.values(seriesConfig).find(s => s.imdb === imdbId);
+    } else if (serieId) {
+      opciones = seriesConfig[serieId];
+    }
+
+    if (opciones) {
+      generarSelectorTemporada(opciones); 
+      if (opciones.episodios) {
+        generarBotonesCapitulos(opciones.episodios.length, opciones);
+        document.getElementById("visor").src = opciones.episodios[episodio - 1];
+      } else {
+        generarBotonesCapitulos(opciones.maxCapitulos, opciones);
+        document.getElementById("visor").src =
+          `https://vimeus.com/e/serie?imdb=${opciones.imdb}&se=${temporada}&ep=${episodio}&view_key=${opciones.viewKey}`;
+      }
+    }
+
+    function generarBotonesCapitulos(maxCapitulos, opciones) {
+      const contenedor = document.getElementById("botonesCapitulos");
+      contenedor.innerHTML = "";
+      for (let i = 1; i <= maxCapitulos; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = `Capítulo ${i}`;
+        btn.onclick = () => cambiarCapitulo(i, opciones);
+        contenedor.appendChild(btn);
+      }
+      const btnSiguiente = document.createElement("button");
+      btnSiguiente.textContent = "Siguiente capítulo";
+      btnSiguiente.onclick = () => siguienteCapitulo(opciones);
+      contenedor.appendChild(btnSiguiente);
+    }
+
+    function generarSelectorTemporada(opciones) {
+    const contenedor = document.getElementById("selectorTemporada");
+    contenedor.innerHTML = "";
+
+    
+    const select = document.createElement("select");
+    for (let t = 1; t <= opciones.maxTemporadas; t++) {
+      const option = document.createElement("option");
+      option.value = t;
+      option.textContent = `Temporada ${t}`;
+      select.appendChild(option);
+    }
+
+
+    select.onchange = () => {
+      temporada = parseInt(select.value);
+      episodio = 1;
+      cambiarCapitulo(episodio, opciones);
+      generarBotonesCapitulos(opciones.maxCapitulos, opciones);
+    };
+
+  contenedor.appendChild(select);
+  }
+
+
+    function cambiarCapitulo(num, opciones) {
+      episodio = num;
+      if (opciones.episodios) {
+        document.getElementById("visor").src = opciones.episodios[episodio - 1];
+      } else {
+        document.getElementById("visor").src =
+          `https://vimeus.com/e/serie?imdb=${opciones.imdb}&se=${temporada}&ep=${episodio}&view_key=${opciones.viewKey}`;
+      }
+    }
+
+    function siguienteCapitulo(opciones) {
+      episodio++;
+      if (opciones.episodios) {
+        if (episodio > opciones.episodios.length) episodio = 1;
+        document.getElementById("visor").src = opciones.episodios[episodio - 1];
+      } else {
+        if (episodio > opciones.maxCapitulos) {
+          temporada++;
+          episodio = 1;
+        }
+        document.getElementById("visor").src =
+          `https://vimeus.com/e/serie?imdb=${opciones.imdb}&se=${temporada}&ep=${episodio}&view_key=${opciones.viewKey}`;
+      }
+    }
+  </script>
+</body>
+</html>
