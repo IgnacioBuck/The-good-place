@@ -16,9 +16,11 @@
   
   <script>
     const seriesConfig = {
-      "got": { imdb: "tt0944947", viewKey: "8Myg_CbKpM2XN72ibzAdILkfQfTIouApg_LC67XAV8Y", maxCapitulos: 10, maxTemporadas: 8 },
-      "severance": { imdb: "tt11280740", viewKey: "8Myg_CbKpM2XN72ibzAdILkfQfTIouApg_LC67XAV8Y", maxCapitulos: 9, maxTemporadas: 2 },
-      "miniSerie": { imdb: "tt7654321", viewKey: "ABC987", maxCapitulos: 5, maxTemporadas: 8 },
+      "got": { imdb: "tt0944947", viewKey: "8Myg_CbKpM2XN72ibzAdILkfQfTIouApg_LC67XAV8Y", maxCapitulos: 10, maxTemporadas: 8, player: "vimeus" },
+      "severance": { imdb: "tt11280740", viewKey: "8Myg_CbKpM2XN72ibzAdILkfQfTIouApg_LC67XAV8Y", maxCapitulos: 9, maxTemporadas: 2, player: "vimeus" },
+      "howamet":{imdb:"tt0460649", viewKey: "8Myg_CbKpM2XN72ibzAdILkfQfTIouApg_LC67XAV8Y", maxCapitulos:24, maxTemporadas:9, player: "vimeus"},
+      "friends":{imdb:"tt0108778", viewKey: "8Myg_CbKpM2XN72ibzAdILkfQfTIouApg_LC67XAV8Y", maxCapitulos:25, maxTemporadas:10, player: "vimeus"},
+      "tedlasso":{imdb:"tt10986410", viewKey: "8Myg_CbKpM2XN72ibzAdILkfQfTIouApg_LC67XAV8Y", maxCapitulos:12, maxTemporadas:3, player: "vimeus"},
       "masAllaDelJardin": { 
         episodios: [
           //Enlaces sacados de repelishd
@@ -32,7 +34,7 @@
           "https://supervideo.cc/e/acxsath6k3r9.html",
           "https://supervideo.cc/e/s43ke599qa4t.html",
           "https://supervideo.cc/e/akcwyaa11hyk.html"
-        ], maxTemporadas: 1
+        ], maxTemporadas: 1, player: "supervideo"
       },
       "elMinisterioDelTiempo": {
         episodios: [
@@ -64,7 +66,7 @@
           "https://supervideo.cc/e/693rpg9n3x9d.html",
           "https://supervideo.cc/e/7h05l3qfhzkd.html",
           "https://supervideo.cc/e/n9iw8aofqjhj.html"
-        ], maxTemporadas: 1
+        ], maxTemporadas: 1, player: "supervideo"
       }
     };
 
@@ -90,8 +92,7 @@
         document.getElementById("visor").src = opciones.episodios[episodio - 1];
       } else {
         generarBotonesCapitulos(opciones.maxCapitulos, opciones);
-        document.getElementById("visor").src =
-          `https://vimeus.com/e/serie?imdb=${opciones.imdb}&se=${temporada}&ep=${episodio}&view_key=${opciones.viewKey}`;
+        cargarPlayer(opciones, temporada, episodio);
       }
     }
 
@@ -134,14 +135,28 @@
   contenedor.appendChild(select);
   }
 
+  function cargarPlayer(opciones, temporada, episodio) {
+    let src = "";
+    if (opciones.player === "vimeus") {
+      src = `https://vimeus.com/e/serie?imdb=${opciones.imdb}&se=${temporada}&ep=${episodio}&view_key=${opciones.viewKey}`;
+    } else if (opciones.player === "moviesapi") {
+      src = `https://moviesapi.to/tv/${opciones.imdb}-${temporada}-${episodio}`;
+    } else if (opciones.player === "supervideo") {
+      src = opciones.episodios[episodio - 1];
+    }
+    document.getElementById("visor").src = src;
+  }
+
+
+
+
 
     function cambiarCapitulo(num, opciones) {
       episodio = num;
       if (opciones.episodios) {
         document.getElementById("visor").src = opciones.episodios[episodio - 1];
       } else {
-        document.getElementById("visor").src =
-          `https://vimeus.com/e/serie?imdb=${opciones.imdb}&se=${temporada}&ep=${episodio}&view_key=${opciones.viewKey}`;
+        cargarPlayer(opciones, temporada, episodio);
       }
     }
 
@@ -155,8 +170,7 @@
           temporada++;
           episodio = 1;
         }
-        document.getElementById("visor").src =
-          `https://vimeus.com/e/serie?imdb=${opciones.imdb}&se=${temporada}&ep=${episodio}&view_key=${opciones.viewKey}`;
+        cargarPlayer(opciones, temporada, episodio);
       }
     }
   </script>
