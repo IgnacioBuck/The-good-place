@@ -22,7 +22,8 @@ body {
 .content, .main {
     flex: 1;
     padding: 20px;
-    margin-left: 240px;
+    margin-left: 200px;
+    margin-top: 20px ;
 }
 
 /* HEADER */

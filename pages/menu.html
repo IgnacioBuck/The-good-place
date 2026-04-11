@@ -68,7 +68,7 @@
             
             <div class="section" id="peliculas">
             <p>PELICULAS</p>
-            <div class="videos">
+                <div class="videos">
                 <div class="video-card">
                 <a href="reproductorPelicula.html?id=157336">
                     <img src="../img/interestelar.jpg" alt="Miniatura">
@@ -100,7 +100,33 @@
                 </a>
                 </div>
             </div>
+        </div>
+
+            <div class="section">
+            <p>LEGO</p>
+            <div class="videos">
+                <div class="video-card">
+                    <a href="reproductorPelicula.html?id=137106">
+                        <img src="../img/legolapelicula.jpg" alt="Miniatura">
+                        <h3>Lego: La Pelicula</h3>
+                    </a>
+                </div>
+                <div class="video-card">
+                    <a href="reproductorPelicula.html?id=280217">
+                        <img src="../img/lego2.jpg" alt="Miniatura">
+                        <h3>Lego: La Pelicula 2</h3>
+                    </a>
+                </div>
+                <div class="video-card">
+                    <a href="reproductorPelicula.html?id=324849">
+                        <img src="../img/legobatman.jpg" alt="Miniatura">
+                        <h3>Lego Batman</h3>
+                    </a>
+                </div>    
             </div>
+        </div>
+
+        
 
             <div class="section">
                 <p>SAGA TRON</p>
@@ -122,9 +148,9 @@
                         <img src="../img/tronares.jpg" alt="Miniatura">
                         <h3>Tron: Ares</h3>
                     </a>
-                    </div>
                 </div>
             </div>
+        </div>
 
             <div class="section" id="series">
                 <p>SERIES</p>
@@ -166,21 +192,21 @@
                         </a>
                     </div>
                     <div class="video-card">
-                        <a href="reproductorSerie.html?id=&se=1&ep=1">
-                            <img src="../img/.jpg" alt="Miniatura">
-                            <h3>How a met your mother</h3>
+                        <a href="reproductorSerie.html?id=tt0481256&se=1&ep=1">
+                            <img src="../img/hajime no ippo.jpg" alt="Miniatura">
+                            <h3>Hajime no ippo</h3>
                         </a>
                     </div>
                     <div class="video-card">
-                        <a href="reproductorSerie.html?id=&se=1&ep=1">
-                            <img src="../img/.jpg" alt="Miniatura">
-                            <h3>Ted Lasso</h3>
+                        <a href="reproductorSerie.html?id=tt0213338&se=1&ep=1">
+                            <img src="../img/cowboybebop.jpg" alt="Miniatura">
+                            <h3>Cowboy Bebop</h3>
                         </a>
                     </div>
                     <div class="video-card">
-                        <a href="reproductorSerie.html?id=&se=1&ep=1">
-                            <img src="../img/.jpg" alt="Miniatura">
-                            <h3>Ted Lasso</h3>
+                        <a href="reproductorSerie.html?id=tt21209804&se=1&ep=1">
+                            <img src="../img/mushle.jpg" alt="Miniatura">
+                            <h3>Mushle</h3>
                         </a>
                     </div>
                 </div>
@@ -223,6 +249,39 @@
 
 
 
+<script>
 
+    //Guarda ubicacion del scroll
+
+    window.addEventListener("beforeunload", () => {
+    sessionStorage.setItem("scrollPos", window.scrollY);
+    sessionStorage.setItem("serie", serieId || imdbId);
+    sessionStorage.setItem("temporada", temporada);
+    sessionStorage.setItem("episodio", episodio);
+    });
+
+    window.addEventListener("load", () => {
+    const scrollPos = sessionStorage.getItem("scrollPos");
+    if (scrollPos) {
+        window.scrollTo(0, parseInt(scrollPos));
+    }
+
+    const temp = sessionStorage.getItem("temporada");
+    const epi = sessionStorage.getItem("episodio");
+    if (opciones) {
+        temporada = parseInt(temp) || 1;
+        episodio = parseInt(epi) || 1;
+        cargarPlayer(opciones, temporada, episodio);
+    }
+    });
+
+    window.addEventListener("popstate", () => {
+    const scrollPos = sessionStorage.getItem("scrollPos");
+    if (scrollPos) {
+        window.scrollTo(0, parseInt(scrollPos));
+    }
+    });
+
+</script>
 </body>
 </html>

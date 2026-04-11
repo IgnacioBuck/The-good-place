@@ -16,13 +16,17 @@
   
   <script>
     const seriesConfig = {
-      "got": { imdb: "tt0944947", viewKey: "8Myg_CbKpM2XN72ibzAdILkfQfTIouApg_LC67XAV8Y", maxCapitulos: 10, maxTemporadas: 8, player: "vimeus" },
-      "severance": { imdb: "tt11280740", viewKey: "8Myg_CbKpM2XN72ibzAdILkfQfTIouApg_LC67XAV8Y", maxCapitulos: 9, maxTemporadas: 2, player: "vimeus" },
+      "got": { imdb: "tt0944947", viewKey: "8Myg_CbKpM2XN72ibzAdILkfQfTIouApg_LC67XAV8Y", maxCapitulos: 10, maxTemporadas: 8, player: "vimeus_serie" },
+      "severance": { imdb: "tt11280740", viewKey: "8Myg_CbKpM2XN72ibzAdILkfQfTIouApg_LC67XAV8Y", maxCapitulos: 9, maxTemporadas: 2, player: "vimeus_serie" },
       "howamet":{ imdb: "tt0460649", viewKey: "8Myg_CbKpM2XN72ibzAdILkfQfTIouApg_LC67XAV8Y", maxCapitulos:24, maxTemporadas:9, player: "moviesapi" },
       "friends":{ imdb: "tt0108778", maxCapitulos:25, maxTemporadas:10, player: "moviesapi" },
       "tedlasso":{ imdb: "tt10986410", viewKey: "E4YZ5l7meDrqFf0qh7HHF0m57qeUQkDYzkgvlfBtzcY", maxCapitulos:12, maxTemporadas:3, player: "moviesapi" },
       "theboys":{ imdb: "tt1190634", viewKey: "E4YZ5l7meDrqFf0qh7HHF0m57qeUQkDYzkgvlfBtzcY", maxCapitulos: 8, maxTemporadas: 4, player:"vimeus" },
-      "dragonball":{imdb: "tt0088509", viewKey: "8Myg_CbKpM2XN72ibzAdILkfQfTIouApg_LC67XAV8Y", maxCapitulos: 153, maxTemporadas: 1, player:"vimeus"},
+      "dragonball":{imdb: "tt0088509", viewKey: "E4YZ5l7meDrqFf0qh7HHF0m57qeUQkDYzkgvlfBtzcY", maxCapitulos: 153, maxTemporadas: 1, player:"vimeus_anime"},
+      "hajimenoippoespiritudelucha":{imdb: "tt0481256", viewKey: "E4YZ5l7meDrqFf0qh7HHF0m57qeUQkDYzkgvlfBtzcY", maxCapitulos: 75, maxTemporadas: 1, player:"vimeus_anime"},
+      "dragonballz":{imdb: "tt0214341", viewKey: "E4YZ5l7meDrqFf0qh7HHF0m57qeUQkDYzkgvlfBtzcY", maxCapitulos: 8, maxTemporadas: 1, player:"vimeus_anime"},
+      "cowboybebop":{imdb: "tt0213338", viewKey: "E4YZ5l7meDrqFf0qh7HHF0m57qeUQkDYzkgvlfBtzcY", maxCapitulos: 26, maxTemporadas: 1, player:"vimeus_anime"},
+      "mashle":{imdb: "tt21209804", viewKey: "E4YZ5l7meDrqFf0qh7HHF0m57qeUQkDYzkgvlfBtzcY", maxCapitulos: 13, maxTemporadas: 2, player:"vimeus_anime"},
       "masAllaDelJardin": { 
         episodios: [
           //Enlaces sacados de repelishd
@@ -139,8 +143,10 @@
 
   function cargarPlayer(opciones, temporada, episodio) {
     let src = "";
-    if (opciones.player === "vimeus") {
+    if (opciones.player === "vimeus_serie") {
       src = `https://vimeus.com/e/serie?imdb=${opciones.imdb}&se=${temporada}&ep=${episodio}&view_key=${opciones.viewKey}`;
+    }else if (opciones.player === "vimeus_anime"){
+      src = `https://vimeus.com/e/anime?imdb=${opciones.imdb}&se=${temporada}&ep=${episodio}&view_key=${opciones.viewKey}`;
     } else if (opciones.player === "moviesapi") {
       src = `https://moviesapi.to/tv/${opciones.imdb}-${temporada}-${episodio}`;
     } else if (opciones.player === "supervideo") {
@@ -175,6 +181,8 @@
         cargarPlayer(opciones, temporada, episodio);
       }
     }
+
+    
   </script>
 </body>
 </html>
