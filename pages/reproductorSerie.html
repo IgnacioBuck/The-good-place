@@ -4,6 +4,27 @@
   <meta charset="UTF-8">
   <title>Reproductor Series</title>
   <link rel="stylesheet" href="../css/reproductor.css">
+  <style>
+    /* Estilo mínimo para resaltar el capítulo visto */
+    #botonesCapitulos button.visto {
+      background: #ffd54f;
+      border-color: #ffb300;
+      color: #000;
+    }
+    #botonesCapitulos {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    #botonesCapitulos button {
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+    #selectorTemporada {
+      margin-top: 12px;
+    }
+  </style>
 </head>
 <body>
 
@@ -21,7 +42,7 @@
       "howamet":{ imdb: "tt0460649", viewKey: "8Myg_CbKpM2XN72ibzAdILkfQfTIouApg_LC67XAV8Y", maxCapitulos:24, maxTemporadas:9, player: "moviesapi" },
       "friends":{ imdb: "tt0108778", maxCapitulos:25, maxTemporadas:10, player: "moviesapi" },
       "tedlasso":{ imdb: "tt10986410", viewKey: "E4YZ5l7meDrqFf0qh7HHF0m57qeUQkDYzkgvlfBtzcY", maxCapitulos:12, maxTemporadas:3, player: "moviesapi" },
-      "theboys":{ imdb: "tt1190634", viewKey: "E4YZ5l7meDrqFf0qh7HHF0m57qeUQkDYzkgvlfBtzcY", maxCapitulos: 8, maxTemporadas: 4, player:"vimeus" },
+      "theboys":{ imdb: "tt1190634", viewKey: "E4YZ5l7meDrqFf0qh7HHF0m57qeUQkDYzkgvlfBtzcY", maxCapitulos: 8, maxTemporadas: 5, player:"vimeus_serie" },
       "dragonball":{imdb: "tt0088509", viewKey: "E4YZ5l7meDrqFf0qh7HHF0m57qeUQkDYzkgvlfBtzcY", maxCapitulos: 153, maxTemporadas: 1, player:"vimeus_anime"},
       "hajimenoippoespiritudelucha":{imdb: "tt0481256", viewKey: "E4YZ5l7meDrqFf0qh7HHF0m57qeUQkDYzkgvlfBtzcY", maxCapitulos: 75, maxTemporadas: 1, player:"vimeus_anime"},
       "dragonballz":{imdb: "tt0214341", viewKey: "E4YZ5l7meDrqFf0qh7HHF0m57qeUQkDYzkgvlfBtzcY", maxCapitulos: 8, maxTemporadas: 1, player:"vimeus_anime"},
@@ -29,7 +50,6 @@
       "mashle":{imdb: "tt21209804", viewKey: "E4YZ5l7meDrqFf0qh7HHF0m57qeUQkDYzkgvlfBtzcY", maxCapitulos: 13, maxTemporadas: 2, player:"vimeus_anime"},
       "masAllaDelJardin": { 
         episodios: [
-          //Enlaces sacados de repelishd
           "https://supervideo.cc/e/lqmwvhd9h3vj",
           "https://supervideo.cc/e/mhacbemiikb8",
           "https://supervideo.cc/e/xd585hq93d19.html",
@@ -76,38 +96,75 @@
       }
     };
 
+    // Estado inicial
     let temporada = 1;
     let episodio = 1;
 
+    // Obtener parámetros de URL
     const params = new URLSearchParams(window.location.search);
     const imdbId = params.get("id");       
     const serieId = params.get("serie");   
 
+    // Determinar opciones de la serie
     let opciones = null;
-
     if (imdbId) {
       opciones = Object.values(seriesConfig).find(s => s.imdb === imdbId);
     } else if (serieId) {
       opciones = seriesConfig[serieId];
     }
 
-    if (opciones) {
-      generarSelectorTemporada(opciones); 
-      if (opciones.episodios) {
-        generarBotonesCapitulos(opciones.episodios.length, opciones);
-        document.getElementById("visor").src = opciones.episodios[episodio - 1];
-      } else {
-        generarBotonesCapitulos(opciones.maxCapitulos, opciones);
-        cargarPlayer(opciones, temporada, episodio);
+    // Key para localStorage (por serie)
+    const serieKey = (serieId || imdbId) ? `progreso_${serieId || imdbId}` : null;
+
+    // Recuperar progreso guardado (si existe) y aplicarlo
+    if (serieKey) {
+      try {
+        const guardado = JSON.parse(localStorage.getItem(serieKey) || "{}");
+        if (guardado && guardado.episodio) {
+          episodio = parseInt(guardado.episodio) || 1;
+        }
+        if (guardado && guardado.temporada) {
+          temporada = parseInt(guardado.temporada) || 1;
+        }
+      } catch (e) {
+        // si hay error en parseo, ignorar y usar valores por defecto
+        episodio = 1;
+        temporada = 1;
       }
     }
 
+    // Si hay opciones, generar UI y cargar el player/iframe
+    if (opciones) {
+      generarSelectorTemporada(opciones);
+
+      if (opciones.episodios) {
+        // Si es lista de episodios (supervideo u otros)
+        generarBotonesCapitulos(opciones.episodios.length, opciones);
+        // Asegurarse que episodio esté dentro del rango
+        if (episodio < 1 || episodio > opciones.episodios.length) episodio = 1;
+        document.getElementById("visor").src = opciones.episodios[episodio - 1];
+        marcarBotonActivo(episodio);
+      } else {
+        // Player externo (vimeus, moviesapi, etc.)
+        generarBotonesCapitulos(opciones.maxCapitulos, opciones);
+        // Asegurarse que episodio esté dentro del rango
+        if (episodio < 1 || episodio > opciones.maxCapitulos) episodio = 1;
+        // Ajustar selector de temporada al valor recuperado
+        const selectTemp = document.querySelector("#selectorTemporada select");
+        if (selectTemp) selectTemp.value = temporada;
+        cargarPlayer(opciones, temporada, episodio);
+        marcarBotonActivo(episodio);
+      }
+    }
+
+    // Genera botones de capítulos y añade marcado si corresponde
     function generarBotonesCapitulos(maxCapitulos, opciones) {
       const contenedor = document.getElementById("botonesCapitulos");
       contenedor.innerHTML = "";
       for (let i = 1; i <= maxCapitulos; i++) {
         const btn = document.createElement("button");
         btn.textContent = `Capítulo ${i}`;
+        btn.dataset.cap = i;
         btn.onclick = () => cambiarCapitulo(i, opciones);
         contenedor.appendChild(btn);
       }
@@ -115,59 +172,72 @@
       btnSiguiente.textContent = "Siguiente capítulo";
       btnSiguiente.onclick = () => siguienteCapitulo(opciones);
       contenedor.appendChild(btnSiguiente);
+
+      // Marcar botón activo según progreso guardado
+      marcarBotonActivo(episodio);
     }
 
+    // Genera selector de temporada (si aplica)
     function generarSelectorTemporada(opciones) {
-    const contenedor = document.getElementById("selectorTemporada");
-    contenedor.innerHTML = "";
+      const contenedor = document.getElementById("selectorTemporada");
+      contenedor.innerHTML = "";
 
-    
-    const select = document.createElement("select");
-    for (let t = 1; t <= opciones.maxTemporadas; t++) {
-      const option = document.createElement("option");
-      option.value = t;
-      option.textContent = `Temporada ${t}`;
-      select.appendChild(option);
+      // Si la serie no tiene varias temporadas, no mostrar selector
+      if (!opciones.maxTemporadas || opciones.maxTemporadas <= 1) return;
+
+      const select = document.createElement("select");
+      for (let t = 1; t <= opciones.maxTemporadas; t++) {
+        const option = document.createElement("option");
+        option.value = t;
+        option.textContent = `Temporada ${t}`;
+        select.appendChild(option);
+      }
+
+      // Establecer temporada recuperada (si existe)
+      select.value = temporada;
+
+      select.onchange = () => {
+        temporada = parseInt(select.value);
+        episodio = 1;
+        // regenerar botones (por si la cantidad de capítulos depende de temporada)
+        generarBotonesCapitulos(opciones.maxCapitulos, opciones);
+        cambiarCapitulo(episodio, opciones);
+      };
+
+      contenedor.appendChild(select);
     }
 
-
-    select.onchange = () => {
-      temporada = parseInt(select.value);
-      episodio = 1;
-      cambiarCapitulo(episodio, opciones);
-      generarBotonesCapitulos(opciones.maxCapitulos, opciones);
-    };
-
-  contenedor.appendChild(select);
-  }
-
-  function cargarPlayer(opciones, temporada, episodio) {
-    let src = "";
-    if (opciones.player === "vimeus_serie") {
-      src = `https://vimeus.com/e/serie?imdb=${opciones.imdb}&se=${temporada}&ep=${episodio}&view_key=${opciones.viewKey}`;
-    }else if (opciones.player === "vimeus_anime"){
-      src = `https://vimeus.com/e/anime?imdb=${opciones.imdb}&se=${temporada}&ep=${episodio}&view_key=${opciones.viewKey}`;
-    } else if (opciones.player === "moviesapi") {
-      src = `https://moviesapi.to/tv/${opciones.imdb}-${temporada}-${episodio}`;
-    } else if (opciones.player === "supervideo") {
-      src = opciones.episodios[episodio - 1];
+    // Carga el player según tipo
+    function cargarPlayer(opciones, temporada, episodio) {
+      let src = "";
+      if (opciones.player === "vimeus_serie") {
+        src = `https://vimeus.com/e/serie?imdb=${opciones.imdb}&se=${temporada}&ep=${episodio}&view_key=${opciones.viewKey}`;
+      } else if (opciones.player === "vimeus_anime"){
+        src = `https://vimeus.com/e/anime?imdb=${opciones.imdb}&se=${temporada}&ep=${episodio}&view_key=${opciones.viewKey}`;
+      } else if (opciones.player === "moviesapi") {
+        src = `https://moviesapi.to/tv/${opciones.imdb}-${temporada}-${episodio}`;
+      } else if (opciones.player === "supervideo") {
+        src = opciones.episodios[episodio - 1];
+      }
+      document.getElementById("visor").src = src;
     }
-    document.getElementById("visor").src = src;
-  }
 
-
-
-
-
+    // Cambiar a capítulo específico y guardar progreso
     function cambiarCapitulo(num, opciones) {
       episodio = num;
+
       if (opciones.episodios) {
+        // lista de episodios
         document.getElementById("visor").src = opciones.episodios[episodio - 1];
       } else {
         cargarPlayer(opciones, temporada, episodio);
       }
+
+      guardarProgreso();
+      marcarBotonActivo(episodio);
     }
 
+    // Ir al siguiente capítulo (y guardar)
     function siguienteCapitulo(opciones) {
       episodio++;
       if (opciones.episodios) {
@@ -177,12 +247,60 @@
         if (episodio > opciones.maxCapitulos) {
           temporada++;
           episodio = 1;
+          // actualizar selector de temporada si existe
+          const selectTemp = document.querySelector("#selectorTemporada select");
+          if (selectTemp) {
+            if (temporada > opciones.maxTemporadas) temporada = 1;
+            selectTemp.value = temporada;
+          }
         }
         cargarPlayer(opciones, temporada, episodio);
       }
+
+      guardarProgreso();
+      marcarBotonActivo(episodio);
     }
 
-    
+    // Guarda progreso en localStorage bajo la key de la serie
+    function guardarProgreso() {
+      if (!serieKey) return;
+      const data = {
+        episodio: episodio,
+        temporada: temporada,
+        timestamp: Date.now()
+      };
+      try {
+        localStorage.setItem(serieKey, JSON.stringify(data));
+      } catch (e) {
+        // si falla (por ejemplo storage lleno), no romper la app
+        console.warn("No se pudo guardar el progreso en localStorage", e);
+      }
+    }
+
+    // Marca visualmente el botón del capítulo activo
+    function marcarBotonActivo(num) {
+      const contenedor = document.getElementById("botonesCapitulos");
+      if (!contenedor) return;
+      const botones = contenedor.querySelectorAll("button");
+      botones.forEach(b => b.classList.remove("visto"));
+      // buscar el botón con data-cap igual a num
+      const boton = contenedor.querySelector(`button[data-cap='${num}']`);
+      if (boton) boton.classList.add("visto");
+    }
+
+    // Opcional: Exponer una función para limpiar progreso (útil para pruebas)
+    window.limpiarProgreso = function() {
+      if (!serieKey) return;
+      localStorage.removeItem(serieKey);
+      temporada = 1;
+      episodio = 1;
+      generarBotonesCapitulos(opciones.episodios ? opciones.episodios.length : opciones.maxCapitulos, opciones);
+      if (opciones.episodios) {
+        document.getElementById("visor").src = opciones.episodios[0];
+      } else {
+        cargarPlayer(opciones, temporada, episodio);
+      }
+    };
   </script>
 </body>
 </html>
